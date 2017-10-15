@@ -137,7 +137,7 @@ public class PictureVerifyUtil {
 	 * @return
 	 */
 	public static String sendVerifyCode(HttpServletResponse res) {
-		String code = RandomUtil.getVerifyCode(DEFAULT_CODE_LENGTH, VerifyCodeType.NUM_LOWCHAR_UPCHAR);
+		String code = RandomUtil.getVerifyCode(DEFAULT_CODE_LENGTH, VerifyCodeType.NUM);
 		makePic(DEFAULT_WIDTH, DEFAULT_HEIGHT, code, res);
 		return code;
 	}

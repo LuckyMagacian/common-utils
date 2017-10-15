@@ -1,7 +1,7 @@
 package com.lanxi.util.utils;
 
 import com.alibaba.fastjson.JSONObject;
-
+import com.lanxi.util.entity.LogFactory;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -227,6 +227,8 @@ public class OtherUtil {
 		private String sex;
 		public IdAnalyst(String id){
 			this.inputId=id.trim().toLowerCase();
+			LogFactory.info(this, "id:"+inputId);
+			LogFactory.info(this, "length:"+inputId.length());
 			if(inputId==null)
 		        throw new NullPointerException("输入的身份证为null!");
 		    if(inputId.length()!=18&&inputId.length()!=15)
@@ -291,10 +293,10 @@ public class OtherUtil {
 		 * 			不通过->false
 		 */
 		public Boolean validateId(){
-			String regex="[0-9]{17}[0-9x]{1}";
+			String regex="[0-9]{17}[0-9xX]{1}";
 			if(id.length()!=18)
 				return false;
-			if(id.matches(regex))
+			if(!id.matches(regex))
 				return false;
 			if(validateDate()!=null&&!validateDate())
 				return false;

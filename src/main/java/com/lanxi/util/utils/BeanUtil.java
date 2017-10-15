@@ -1,12 +1,20 @@
 package com.lanxi.util.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -645,12 +653,88 @@ public class BeanUtil {
 		}
 		return classpath;
 	}
-	
+	/**
+	 * 获取当前代码所在类的名称
+	 * @return
+	 */
 	public static String getCurrentClassName() {
 		return Thread.currentThread().getStackTrace()[2].getClassName();
 	}
-	
+	/**
+	 * 获取当前代码所在的方法名称
+	 * @return
+	 */
 	public static String getCurrentMethodName() {
 		return Thread.currentThread().getStackTrace()[2].getMethodName();
+	}
+	/**
+	 * 根据参数类型初始化参数值
+	 * @param bean
+	 */
+	public static void initBeanValue(Object bean) {
+		Map<Class<?>, Object> map=new HashMap<>();
+		map.put(String.class, "");
+		map.put(Integer.class, 0);
+		map.put(Float.class, 0.0F);
+		map.put(Double.class, 0.0D);
+		map.put(Byte.class, (byte)0);
+		map.put(Character.class, (char)0);
+		map.put(BigDecimal.class,new BigDecimal("0"));
+		List<Field> fields=getFieldListNoStatic(bean);
+		for(Field each:fields) {
+			each.setAccessible(true);
+			try {
+				each.set(bean, map.get(each.getType()));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			} 
+		}
+	}
+	/**
+	 * 通过Field的set与get实现浅拷贝
+	 * @param t
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T shallowCopy(T t){
+		try {
+			T temp=(T) t.getClass().newInstance();
+			List<Field> fields=getFieldListNoStatic(t);
+			for(Field each:fields) {
+				each.setAccessible(true);
+				each.set(temp,each.get(t));
+			}
+			return temp;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} 
+	}
+	/**
+	 * 通过对象序列化来实现深拷贝
+	 * @param t
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable> T deepCopy(T t) {
+		ObjectOutputStream oos = null;
+		ObjectInputStream  ois = null;
+		try {
+			ByteArrayOutputStream os=new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(os);
+			oos.writeObject(t);
+			ByteArrayInputStream is=new ByteArrayInputStream(os.toByteArray());
+			ois=new ObjectInputStream(is);
+			Object obj=ois.readObject();
+			return (T) obj;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}finally {
+			try {
+				oos.close();
+				ois.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

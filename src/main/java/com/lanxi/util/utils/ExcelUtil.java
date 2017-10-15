@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -276,8 +277,22 @@ public class ExcelUtil {
 	 * @param out
 	 */
 	public static void exportExcelFile(List<?> list,Map<String, String> tableHeadMap,OutputStream out){
+		workbook=new HSSFWorkbook();
+		init();
 		if(list==null||list.isEmpty())
-			throw new IllegalArgumentException("list can't be null or empty");
+			try {
+				if(tableHeadMap!=null&&!tableHeadMap.isEmpty()){
+					int colIndex=0;
+					for(Entry<String, String> each:tableHeadMap.entrySet()){
+						HSSFCell cell=ExcelUtil.getCell(0, 0, colIndex++);
+		 				cell.setCellValue(each.getValue());
+					}
+				}
+				workbook.write(out);
+				return;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		Class<?> clazz=list.get(0).getClass();
 		if(clazz.isAssignableFrom(Iterable.class))
 			throw new IllegalArgumentException("element of list can't be subclass of Iterable !");
@@ -329,8 +344,20 @@ public class ExcelUtil {
 	 * @return
 	 */
 	public static File exportExcelFile(List<?> list,Map<String, String> tableHeadMap){
-		if(list==null||list.isEmpty())
-			throw new IllegalArgumentException("list can't be null or empty");
+		workbook=new HSSFWorkbook();
+		init();
+		if(list==null||list.isEmpty()){
+			if(tableHeadMap!=null&&!tableHeadMap.isEmpty()){
+				int colIndex=0;
+				for(Entry<String, String> each:tableHeadMap.entrySet()){
+					HSSFCell cell=ExcelUtil.getCell(0, 0, colIndex++);
+	 				cell.setCellValue(each.getValue());
+				}
+			}
+		 	File file =new File(TimeUtil.getDateTime()+".xls");
+		 	return ExcelUtil.generatorExcel(file);
+		}
+		
 		Class<?> clazz=list.get(0).getClass();
 		if(clazz.isAssignableFrom(Iterable.class))
 			throw new IllegalArgumentException("element of list can't be subclass of Iterable !");

@@ -207,7 +207,7 @@ public class TimeUtil {
 	 * @return
 	 */
 	public static String getPreferDateTime(){
-		String format="yyyy年MM月dd日 HH时mm分ss秒";
+		String format="yyyy年MM月dd日HH时mm分ss秒";
 		return format(format, new Date(System.currentTimeMillis()));
 	}
 	/**
@@ -237,7 +237,7 @@ public class TimeUtil {
 		buffer.append("年");
 		buffer.append(date.substring(4,6));
 		buffer.append("月");
-		buffer.append(date.substring(6));
+		buffer.append(date.substring(6,8));
 		buffer.append("日");
 		return buffer.toString();
 	}
@@ -274,7 +274,7 @@ public class TimeUtil {
 		buffer.append("时");
 		buffer.append(dateTime.substring(10,12));
 		buffer.append("分");
-		buffer.append(dateTime.substring(12));
+		buffer.append(dateTime.substring(12,14));
 		buffer.append("秒");
 		return buffer.toString();
 	}
